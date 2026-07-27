@@ -3,12 +3,19 @@ from tkinter import *
 from back import *
 
 def limitar_text(a):
-    if len(a) <= 10:
-        if (len(a) > 2) and (a[2].isdigit()):
-            return False
-        if (len(a) > 5) and (a[5].isdigit()):
-            return False
-        return all(c.isdigit() or c == '/' for c in a)
+    try:
+        if len(a) <= 10:
+            if (len(a) < 3):
+                if (a[2].isdigit()):
+                    return False
+            if (len(a) < 6 ):
+                if(a[5].isdigit()):
+                    return False
+            return all(c.isdigit() or c == '/' for c in a)
+    except IndexError:
+        print("erro")
+
+    
     return False
 
 def limitar_text_hora(a):
@@ -19,6 +26,7 @@ def limitar_text_hora(a):
             for item in a:
                 num = int(item)
                 if (len(a) < 2 and num > 2):
+                    
                     return False
                 if (len(a) > 1) and len(a) < 3:
                     if (num > 3) and not (a[0] == '1' or a[0] == '0'):
@@ -31,11 +39,13 @@ def limitar_text_hora(a):
     return False
 
 
+
+
 class reginter:
     def __init__(self, master=None):
         vcmd1 = (master.register(limitar_text_hora), '%P')
         self.fontePadrao = ("Arial", "10")
-
+        #conteiners
         self.primeiroContainer = Frame(master)
         self.primeiroContainer["pady"] = 10
         self.primeiroContainer.pack()
@@ -75,6 +85,7 @@ class reginter:
               font=self.fontePadrao, width=14).pack(side=LEFT)
         self.data = Entry(self.terceiroContainer, validate='key',
                           validatecommand=vcmd, font=self.fontePadrao, width=20)
+        self.data.insert(0,"00/00/0000")
         self.data.pack(side=LEFT)
 
         campos = [
