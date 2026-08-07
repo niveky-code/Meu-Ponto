@@ -1,6 +1,9 @@
 
 from tkinter import *
 from back import *
+from PIL import Image, ImageTk
+
+
 
 def limitar_text(a):
     try:
@@ -115,22 +118,64 @@ class reginter:
         h2    = self.hora2.get()
         h3    = self.hora3.get()
         h4    = self.hora4.get()
-        registro(nome, data, h1, h2, h3, h4)
-
+        registro(nome, data, h1, h2, h3, h4) 
+    
+ 
 
 class interface:
     def __init__(self, master=None):
+        #Conteiner master
         self.master = master
         self._janela = None
-
+        self._janelaMenu = None
+        #conteiner menor
         self.widget = Frame(master)
         self.widget.pack()
 
-        Label(self.widget, text="deseja registrar novos pontos?",
-              font=("Verdana", "12", "italic", "bold")).pack()
+        self.bot = Frame(master)
+        self.bot["padx"] = 15
+        self.bot.pack()
+        # 2. Abre a imagem usando o Pillow
+        imagem_original = Image.open("linha_menu.png")
 
-        Button(self.widget, text="registrar", font=("Calibri", "12"),
-               width=15, command=self.registro).pack()
+        # 3. Define o novo tamanho (Largura, Altura) e redimensiona
+        novo_tamanho = (12, 20)
+        imagem_reduzida = imagem_original.resize(novo_tamanho)
+
+        # 4. Converte a imagem do Pillow para o formato do Tkinter
+        imagem_tkinter = ImageTk.PhotoImage(imagem_reduzida)
+
+
+        Label(self.widget, text="deseja registrar novos pontos?",
+              font=("Verdana", "12", "italic", "bold")).pack(side=LEFT)
+        Button(self.widget,image=imagem_tkinter,width=14,height=16,
+               command=self.menuP ).pack(side=RIGHT,padx=11)
+
+        Button(self.bot, text="registrar", font=("Calibri", "12"),
+                       width=15, command=self.registro).pack(side=BOTTOM)
+        
+        
+
+        
+    def menuP(self):
+        if self._janelaMenu is not None and self._janelaMenu.winfo_exists():
+            self._janelaMenu.lift()
+            return
+        class menu:
+            def __init__(self,master=None):
+                self.nomeWig=Frame(master)
+                self.nomeWig.pack()
+
+                Label(self.nomeWig, text="seu nome:",
+                  font=("Verdana", "12", "italic", "bold")).pack(side=LEFT)
+                self.nomeEN = Entry(self.nomeWig, width=20, font=("arial","10"))
+                self.nomeEN.pack(side=RIGHT)
+
+
+        self._janelaMenu = Toplevel(self.master)
+        self._janelaMenu.title("menu")
+        menu(self._janelaMenu)
+                
 
     def registro(self):
         # Reaproveita janela se já estiver aberta
@@ -143,8 +188,5 @@ class interface:
         reginter(self._janela)
 
 
-root = Tk()
-root.title("Sistema de Ponto")
-interface(root)
-root.mainloop()
+
 

@@ -21,3 +21,4 @@ def registro (nome,data,h1,h2,h3,h4):
         # parents=True : cria todas as pastas pais que estiverem faltando
         # exist_ok=True: evita erros caso a pasta já exista
         caminho.mkdir(parents=True, exist_ok=True)
+
