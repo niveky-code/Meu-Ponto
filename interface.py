@@ -6,7 +6,7 @@ from PIL import Image, ImageTk
 
 
 def limitar_text(a):
-    try:
+    try:    
         if len(a) <= 10:
             if (len(a) < 3):
                 if (a[2].isdigit()):
@@ -126,15 +126,22 @@ class interface:
     def __init__(self, master=None):
         #Conteiner master
         self.master = master
-        self._janela = None
+        self._janelaRegistro = None
         self._janelaMenu = None
+        self._janelaBuscar = None
+
         #conteiner menor
         self.widget = Frame(master)
         self.widget.pack()
 
-        self.bot = Frame(master)
-        self.bot["padx"] = 15
-        self.bot.pack()
+        self.bott = Frame(master)
+        self.bott["padx"] = 15
+        self.bott.pack()
+
+        self.busca = Frame(master)
+        self.busca["pady"] = 10
+        self.busca.pack()
+
         # 2. Abre a imagem usando o Pillow
         imagem_original = Image.open("linha_menu.png")
 
@@ -151,8 +158,11 @@ class interface:
         Button(self.widget,image=imagem_tkinter,width=14,height=16,
                command=self.menuP ).pack(side=RIGHT,padx=11)
 
-        Button(self.bot, text="registrar", font=("Calibri", "12"),
+        Button(self.bott, text="registrar", font=("Calibri", "12"),
                        width=15, command=self.registro).pack(side=BOTTOM)
+        
+        Button(self.busca, text="buscar", font=("Calibri", "12"),
+               width=15,command=self.buscar).pack(side=TOP)
         
         
 
@@ -176,16 +186,32 @@ class interface:
         self._janelaMenu.title("menu")
         menu(self._janelaMenu)
                 
+    def buscar(self):
+        
+        if self._janelaBuscar is not None and self._janelaBuscar.winfo_exists():
+            self._janelaBuscar.lift()
+            return
+        class busc:
+            def __init__(self,master=None):
+                self.buscJanela = Frame(master)
+                self.buscJanela.pack()
+
+                Label(self.buscJanela,text="em fase de produção",
+                      font=("Verdana", "12", "italic", "bold")).pack()
+
+        self._janelaBuscar=Toplevel(self.master)
+        self._janelaBuscar.title("em produção")
+        busc(self._janelaBuscar)
 
     def registro(self):
         # Reaproveita janela se já estiver aberta
-        if self._janela is not None and self._janela.winfo_exists():
-            self._janela.lift()
+        if self._janelaRegistro is not None and self._janelaRegistro.winfo_exists():
+            self._janelaRegistro.lift()
             return
 
-        self._janela = Toplevel(self.master)  # Toplevel, não Tk()
-        self._janela.title("Registro de Ponto")
-        reginter(self._janela)
+        self._janelaRegistro = Toplevel(self.master)  # Toplevel, não Tk()
+        self._janelaRegistro.title("Registro de Ponto")
+        reginter(self._janelaRegistro)
 
 
 
