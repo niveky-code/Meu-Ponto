@@ -22,30 +22,42 @@ def limitar_text(a):
     return False
 
 def limitar_text_hora(a):
-    if len(a) <= 5:
-        if (len(a) > 2) and (a[2].isdigit()):
-            return False
-        if len(a) < 3:
-            for item in a:
-                num = int(item)
-                if (len(a) < 2 and num > 2):
-                    
-                    return False
-                if (len(a) > 1) and len(a) < 3:
-                    if (num > 3) and not (a[0] == '1' or a[0] == '0'):
-                        return False
-        if len(a) > 3:
-            num = int(a[3])
-            if (len(a) == 4 and num > 5):
+    try:
+        if len(a) <= 5: 
+            if (len(a) > 2) and (a[2].isdigit()):
                 return False
-        return all(c.isdigit() or c == ':' for c in a)
-    return False
+            
+            if len(a) < 3:
+                for item in a:
+                    num = int(item)
+                    if (len(a) < 2 and num > 2):
+                        
+                        return False
+                    
+                    if (len(a) > 1) and len(a) < 3:
+                        if (num > 3) and not (a[0] == '1' or a[0] == '0'):
+                            return False
+                        
+            if len(a) > 3:
+                num = int(a[3])
+                if (len(a) == 4 and num > 5):
+                    return False
+            return all(c.isdigit() or c == ':' for c in a)
+        return False
+    except IndexError:
+        print("erro 1")
+    except TypeError:
+        print("erro 2")
+    except ValueError:
+        print ("erro 3")
+    
 
 
 
 
 class reginter:
     def __init__(self, master=None):
+        
         vcmd1 = (master.register(limitar_text_hora), '%P')
         self.fontePadrao = ("Arial", "10")
         #conteiners
@@ -81,6 +93,8 @@ class reginter:
         Label(self.segundoContainer, text="nome do funcionario",
               font=self.fontePadrao).pack(side=LEFT)
         self.nome = Entry(self.segundoContainer, width=20, font=self.fontePadrao)
+        strnome=bNome()
+        self.nome.insert(0,strnome)
         self.nome.pack(side=LEFT)
 
         vcmd = (self.terceiroContainer.register(limitar_text), "%P")
@@ -106,7 +120,7 @@ class reginter:
             entry.pack(side=LEFT)
             setattr(self, entry_attr, entry)
 
-        Button(self.quintoContainer, text="enviar", font=("Calibri", "12"),
+        Button(self.quintoContainer, text="salvar", font=("Calibri", "12"),
                width=15, command=self.registrar).pack()
         Button(self.quintoContainer, text="voltar", font=("Calibri", "12"),
                width=15, command=master.destroy).pack()
@@ -175,11 +189,22 @@ class interface:
             def __init__(self,master=None):
                 self.nomeWig=Frame(master)
                 self.nomeWig.pack()
+                
+                Label(self.nomeWig, text="alterar nome padrão",
+                  font=("Verdana", "12", "italic", "bold")).pack(side=TOP)
 
                 Label(self.nomeWig, text="seu nome:",
                   font=("Verdana", "12", "italic", "bold")).pack(side=LEFT)
                 self.nomeEN = Entry(self.nomeWig, width=20, font=("arial","10"))
                 self.nomeEN.pack(side=RIGHT)
+
+                Button(self.nomeWig,text="salvar",command=self.salvar_nome).pack()
+
+            def salvar_nome(self):
+                usuario=self.nomeEN.get()
+                nome(usuario)
+
+
 
 
         self._janelaMenu = Toplevel(self.master)
@@ -196,11 +221,13 @@ class interface:
                 self.buscJanela = Frame(master)
                 self.buscJanela.pack()
 
-                Label(self.buscJanela,text="em fase de produção",
+                Label(self.buscJanela,text="Deseja dia,mês ou ano?",
                       font=("Verdana", "12", "italic", "bold")).pack()
+                
 
         self._janelaBuscar=Toplevel(self.master)
         self._janelaBuscar.title("em produção")
+        self._janelaBuscar.geometry("400x150")
         busc(self._janelaBuscar)
 
     def registro(self):
