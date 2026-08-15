@@ -22,3 +22,24 @@ def registro (nome,data,h1,h2,h3,h4):
         # exist_ok=True: evita erros caso a pasta já exista
         caminho.mkdir(parents=True, exist_ok=True)
 
+def nome(nome):
+
+    caminho="nomeUnico.txt"
+    try:
+        with open(caminho,"w") as arq:
+            arq.write(nome)
+
+    finally:
+        pass
+
+def bNome():
+    nomeus = "usuario"
+    caminho="nomeUnico.txt"
+    
+    with open(caminho,"r") as arq:
+        nomeus=arq.read()
+        print(nomeus) 
+        return nomeus
+
+
+
