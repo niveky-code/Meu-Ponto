@@ -1,66 +1,59 @@
-
 from tkinter import *
 from back import *
 from PIL import Image, ImageTk
 
 
-
-def limitar_text(a):
-    try:    
-        if len(a) <= 10:
-            if (len(a) < 3):
-                if (a[2].isdigit()):
-                    return False
-            if (len(a) < 6 ):
-                if(a[5].isdigit()):
-                    return False
-            return all(c.isdigit() or c == '/' for c in a)
-    except IndexError:
-        print("erro")
-
-    
-    return False
-
-def limitar_text_hora(a):
-    try:
-        if len(a) <= 5: 
-            if (len(a) > 2) and (a[2].isdigit()):
-                return False
-            
-            if len(a) < 3:
-                for item in a:
-                    num = int(item)
-                    if (len(a) < 2 and num > 2):
-                        
-                        return False
-                    
-                    if (len(a) > 1) and len(a) < 3:
-                        if (num > 3) and not (a[0] == '1' or a[0] == '0'):
-                            return False
-                        
-            if len(a) > 3:
-                num = int(a[3])
-                if (len(a) == 4 and num > 5):
-                    return False
-            return all(c.isdigit() or c == ':' for c in a)
-        return False
-    except IndexError:
-        print("erro 1")
-    except TypeError:
-        print("erro 2")
-    except ValueError:
-        print ("erro 3")
-    
+def _reformatar(entry, digitos, posicoes_separador, caractere_sep):
+    novo = ''
+    for i, d in enumerate(digitos):
+        if i in posicoes_separador:
+            novo += caractere_sep
+        novo += d
+    entry.delete(0, END)
+    entry.insert(0, novo)
+    entry.icursor(END)
 
 
+def mascara_data(event):
+    entry = event.widget
+    texto = entry.get()
+    digitos = [c for c in texto if c.isdigit()][:8]  # DD MM AAAA
+    anterior = getattr(entry, '_qtd_digitos', 0)
+    # se o usuário apagou uma "/" o backspace não tira dígito nenhum,
+    # então forçamos a remoção de mais um dígito nesse caso
+    if event.keysym == 'BackSpace' and len(digitos) == anterior:
+        digitos = digitos[:-1]
+    entry._qtd_digitos = len(digitos)
+    _reformatar(entry, digitos, (2, 4), '/')
+
+
+def mascara_hora(event):
+    entry = event.widget
+    texto = entry.get()
+    digitos = [c for c in texto if c.isdigit()][:4]  # HH MM
+    anterior = getattr(entry, '_qtd_digitos', 0)
+    if event.keysym == 'BackSpace' and len(digitos) == anterior:
+        digitos = digitos[:-1]
+    entry._qtd_digitos = len(digitos)
+    _reformatar(entry, digitos, (2,), ':')
+
+
+def somente_digitos_e_separador(char_permitido):
+    """Filtro leve via validatecommand: barra letras/símbolos indesejados
+    antes mesmo do KeyRelease disparar a máscara."""
+    def validar(texto_proposto):
+        return all(c.isdigit() or c == char_permitido for c in texto_proposto)
+    return validar
 
 
 class reginter:
     def __init__(self, master=None):
-        
-        vcmd1 = (master.register(limitar_text_hora), '%P')
+
+        vcmd_data = (master.register(somente_digitos_e_separador('/')), '%P')
+        vcmd_hora = (master.register(somente_digitos_e_separador(':')), '%P')
+
         self.fontePadrao = ("Arial", "10")
-        #conteiners
+        # conteiners
         self.primeiroContainer = Frame(master)
         self.primeiroContainer["pady"] = 10
         self.primeiroContainer.pack()
@@ -73,7 +66,7 @@ class reginter:
         self.terceiroContainer["padx"] = 20
         self.terceiroContainer.pack()
 
-        for attr in ["hora1conteiner","hora2conteiner","hora3conteiner","hora4conteiner"]:
+        for attr in ["hora1conteiner", "hora2conteiner", "hora3conteiner", "hora4conteiner"]:
             f = Frame(master)
             f["padx"] = 20
             f.pack()
@@ -93,17 +86,16 @@ class reginter:
         Label(self.segundoContainer, text="nome do funcionario",
               font=self.fontePadrao).pack(side=LEFT)
         self.nome = Entry(self.segundoContainer, width=20, font=self.fontePadrao)
-        strnome=bNome()
-        self.nome.insert(0,strnome)
+        strnome = bNome()
+        self.nome.insert(0, strnome)
         self.nome.pack(side=LEFT)
 
-        vcmd = (self.terceiroContainer.register(limitar_text), "%P")
         Label(self.terceiroContainer, text="data",
               font=self.fontePadrao, width=14).pack(side=LEFT)
         self.data = Entry(self.terceiroContainer, validate='key',
-                          validatecommand=vcmd, font=self.fontePadrao, width=20)
-        self.data.insert(0,"00/00/0000")
+                           validatecommand=vcmd_data, font=self.fontePadrao, width=20)
         self.data.pack(side=LEFT)
+        self.data.bind('<KeyRelease>', mascara_data)
 
         campos = [
             ("hora1conteiner", "hora1", "inicio turno"),
@@ -115,9 +107,10 @@ class reginter:
             container = getattr(self, container_attr)
             Label(container, text=label_text,
                   font=self.fontePadrao, width=14).pack(side=LEFT)
-            entry = Entry(container, validate='key', validatecommand=vcmd1,
+            entry = Entry(container, validate='key', validatecommand=vcmd_hora,
                           font=self.fontePadrao, width=20)
             entry.pack(side=LEFT)
+            entry.bind('<KeyRelease>', mascara_hora)
             setattr(self, entry_attr, entry)
 
         Button(self.quintoContainer, text="salvar", font=("Calibri", "12"),
@@ -126,25 +119,24 @@ class reginter:
                width=15, command=master.destroy).pack()
 
     def registrar(self):
-        nome  = self.nome.get()
-        data  = self.data.get()
-        h1    = self.hora1.get()
-        h2    = self.hora2.get()
-        h3    = self.hora3.get()
-        h4    = self.hora4.get()
-        registro(nome, data, h1, h2, h3, h4) 
-    
- 
+        nome = self.nome.get()
+        data = self.data.get()
+        h1 = self.hora1.get()
+        h2 = self.hora2.get()
+        h3 = self.hora3.get()
+        h4 = self.hora4.get()
+        registro(nome, data, h1, h2, h3, h4)
+
 
 class interface:
     def __init__(self, master=None):
-        #Conteiner master
+        # Conteiner master
         self.master = master
         self._janelaRegistro = None
         self._janelaMenu = None
         self._janelaBuscar = None
 
-        #conteiner menor
+        # conteiner menor
         self.widget = Frame(master)
         self.widget.pack()
 
@@ -166,66 +158,60 @@ class interface:
         # 4. Converte a imagem do Pillow para o formato do Tkinter
         imagem_tkinter = ImageTk.PhotoImage(imagem_reduzida)
 
-
         Label(self.widget, text="deseja registrar novos pontos?",
               font=("Verdana", "12", "italic", "bold")).pack(side=LEFT)
-        Button(self.widget,image=imagem_tkinter,width=14,height=16,
-               command=self.menuP ).pack(side=RIGHT,padx=11)
+        Button(self.widget, image=imagem_tkinter, width=14, height=16,
+               command=self.menuP).pack(side=RIGHT, padx=11)
 
         Button(self.bott, text="registrar", font=("Calibri", "12"),
-                       width=15, command=self.registro).pack(side=BOTTOM)
-        
-        Button(self.busca, text="buscar", font=("Calibri", "12"),
-               width=15,command=self.buscar).pack(side=TOP)
-        
-        
+               width=15, command=self.registro).pack(side=BOTTOM)
 
-        
+        Button(self.busca, text="buscar", font=("Calibri", "12"),
+               width=15, command=self.buscar).pack(side=TOP)
+
     def menuP(self):
         if self._janelaMenu is not None and self._janelaMenu.winfo_exists():
             self._janelaMenu.lift()
             return
+
         class menu:
-            def __init__(self,master=None):
-                self.nomeWig=Frame(master)
+            def __init__(self, master=None):
+                self.nomeWig = Frame(master)
                 self.nomeWig.pack()
-                
+
                 Label(self.nomeWig, text="alterar nome padrão",
-                  font=("Verdana", "12", "italic", "bold")).pack(side=TOP)
+                      font=("Verdana", "12", "italic", "bold")).pack(side=TOP)
 
                 Label(self.nomeWig, text="seu nome:",
-                  font=("Verdana", "12", "italic", "bold")).pack(side=LEFT)
-                self.nomeEN = Entry(self.nomeWig, width=20, font=("arial","10"))
+                      font=("Verdana", "12", "italic", "bold")).pack(side=LEFT)
+                self.nomeEN = Entry(self.nomeWig, width=20, font=("arial", "10"))
                 self.nomeEN.pack(side=RIGHT)
 
-                Button(self.nomeWig,text="salvar",command=self.salvar_nome).pack()
+                Button(self.nomeWig, text="salvar", command=self.salvar_nome).pack()
 
             def salvar_nome(self):
-                usuario=self.nomeEN.get()
+                usuario = self.nomeEN.get()
                 nome(usuario)
-
-
-
 
         self._janelaMenu = Toplevel(self.master)
         self._janelaMenu.title("menu")
         menu(self._janelaMenu)
-                
+
     def buscar(self):
-        
+
         if self._janelaBuscar is not None and self._janelaBuscar.winfo_exists():
             self._janelaBuscar.lift()
             return
+
         class busc:
-            def __init__(self,master=None):
+            def __init__(self, master=None):
                 self.buscJanela = Frame(master)
                 self.buscJanela.pack()
 
-                Label(self.buscJanela,text="Deseja dia,mês ou ano?",
+                Label(self.buscJanela, text="Deseja dia,mês ou ano?",
                       font=("Verdana", "12", "italic", "bold")).pack()
-                
 
-        self._janelaBuscar=Toplevel(self.master)
+        self._janelaBuscar = Toplevel(self.master)
         self._janelaBuscar.title("em produção")
         self._janelaBuscar.geometry("400x150")
         busc(self._janelaBuscar)
@@ -239,7 +225,3 @@ class interface:
         self._janelaRegistro = Toplevel(self.master)  # Toplevel, não Tk()
         self._janelaRegistro.title("Registro de Ponto")
         reginter(self._janelaRegistro)
-
-
-
-
