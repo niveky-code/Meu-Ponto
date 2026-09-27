@@ -41,12 +41,19 @@ def mascara_data(event):
 def mascara_hora(event):
     entry = event.widget
     texto = entry.get()
+    pos_cursor = entry.index(INSERT)
+
+    digitos_antes_cursor = sum(1 for c in texto[:pos_cursor] if c.isdigit())
+
     digitos = [c for c in texto if c.isdigit()][:4]  # HH MM
     anterior = getattr(entry, '_qtd_digitos', 0)
+
     if event.keysym == 'BackSpace' and len(digitos) == anterior:
         digitos = digitos[:-1]
+        digitos_antes_cursor = max(0, digitos_antes_cursor - 1)
+
     entry._qtd_digitos = len(digitos)
-    _reformatar(entry, digitos, (2,), ':')
+    _reformatar(entry, digitos, (2,), ':', digitos_antes_cursor)
 
 
 def somente_digitos_e_separador(char_permitido):
