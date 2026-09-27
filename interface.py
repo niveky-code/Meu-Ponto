@@ -1,30 +1,41 @@
 from tkinter import *
 from back import *
 from PIL import Image, ImageTk
+#bug ao excluir um digito no meio do dato como por exemplo o "2" de 12/13/1999, todos os outros digitos se movem para esquerda e o cursor vai pro final // possivel resolução, não deixar o cursor pular pro fimg
 
-
-def _reformatar(entry, digitos, posicoes_separador, caractere_sep):
+def _reformatar(entry, digitos, posicoes_separador, caractere_sep, cursor_digitos):
     novo = ''
+    pos_final = 0
+    contador_digitos = 0
     for i, d in enumerate(digitos):
         if i in posicoes_separador:
             novo += caractere_sep
         novo += d
+        contador_digitos += 1
+        if contador_digitos == cursor_digitos:
+            pos_final = len(novo)
     entry.delete(0, END)
     entry.insert(0, novo)
-    entry.icursor(END)
+    entry.icursor(pos_final)
 
 
 def mascara_data(event):
     entry = event.widget
     texto = entry.get()
+    pos_cursor = entry.index(INSERT)
+
+    # quantos dígitos existem antes da posição atual do cursor
+    digitos_antes_cursor = sum(1 for c in texto[:pos_cursor] if c.isdigit())
+
     digitos = [c for c in texto if c.isdigit()][:8]  # DD MM AAAA
     anterior = getattr(entry, '_qtd_digitos', 0)
-    # se o usuário apagou uma "/" o backspace não tira dígito nenhum,
-    # então forçamos a remoção de mais um dígito nesse caso
+
     if event.keysym == 'BackSpace' and len(digitos) == anterior:
         digitos = digitos[:-1]
+        digitos_antes_cursor = max(0, digitos_antes_cursor - 1)
+
     entry._qtd_digitos = len(digitos)
-    _reformatar(entry, digitos, (2, 4), '/')
+    _reformatar(entry, digitos, (2, 4), '/', digitos_antes_cursor)
 
 
 def mascara_hora(event):
