@@ -224,14 +224,56 @@ class interface:
         class busc:
             def __init__(self, master=None):
                 self.buscJanela = Frame(master)
-                self.buscJanela.pack()
+                self.buscJanela.pack(padx=10, pady=10)
 
-                Label(self.buscJanela, text="Deseja dia,mês ou ano?",
+                Label(self.buscJanela, text="Deseja buscar por dia, mês ou ano?",
                       font=("Verdana", "12", "italic", "bold")).pack()
+
+                self.opcaoBusca = StringVar(value="dia")
+
+                frameOpcoes = Frame(self.buscJanela)
+                frameOpcoes.pack(pady=5)
+
+                Radiobutton(frameOpcoes, text="Dia", variable=self.opcaoBusca,
+                            value="dia", command=self.atualizarPlaceholder).pack(side="left")
+                Radiobutton(frameOpcoes, text="Mês", variable=self.opcaoBusca,
+                            value="mes", command=self.atualizarPlaceholder).pack(side="left")
+                Radiobutton(frameOpcoes, text="Ano", variable=self.opcaoBusca,
+                            value="ano", command=self.atualizarPlaceholder).pack(side="left")
+
+                self.entryBusca = Entry(self.buscJanela, font=("Verdana", "12"), justify="center")
+                self.entryBusca.pack(pady=10)
+                self.entryBusca.bind("<KeyRelease>", self.aplicarMascara)
+
+                self.atualizarPlaceholder()
+
+            def atualizarPlaceholder(self):
+                # Limpa o campo ao trocar de opção, pois o formato muda
+                self.entryBusca.delete(0, "end")
+
+            def aplicarMascara(self, event=None):
+                texto = "".join(filter(str.isdigit, self.entryBusca.get()))
+                opcao = self.opcaoBusca.get()
+
+                if opcao == "dia":
+                    texto = texto[:8]
+                    if len(texto) >= 5:
+                        texto = f"{texto[:2]}/{texto[2:4]}/{texto[4:]}"
+                    elif len(texto) >= 3:
+                        texto = f"{texto[:2]}/{texto[2:]}"
+                elif opcao == "mes":
+                    texto = texto[:6]
+                    if len(texto) >= 3:
+                        texto = f"{texto[:2]}/{texto[2:]}"
+                else:  # ano
+                    texto = texto[:4]
+
+                self.entryBusca.delete(0, "end")
+                self.entryBusca.insert(0, texto)
 
         self._janelaBuscar = Toplevel(self.master)
         self._janelaBuscar.title("em produção")
-        self._janelaBuscar.geometry("400x150")
+        self._janelaBuscar.geometry("400x180")
         busc(self._janelaBuscar)
 
     def registro(self):

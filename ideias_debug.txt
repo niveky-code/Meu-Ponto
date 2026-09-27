@@ -1,1 +1,0 @@
-fazer cada campo nos registros limitar a escrita

@@ -2,8 +2,8 @@ import tkinter as tk
 from PIL import Image, ImageTk
 
 # 1. Cria a janela do Tkinter
-#janela = tk.Tk()
-#janela.title("Imagem Redimensionada")
+janela = tk.Tk()
+janela.title("Imagem Redimensionada")
 
 # 2. Abre a imagem usando o Pillow
 imagem_original = Image.open("linha_menu.png")
@@ -16,8 +16,9 @@ imagem_reduzida = imagem_original.resize(novo_tamanho)
 imagem_tkinter = ImageTk.PhotoImage(imagem_reduzida)
 
 # 5. Coloca a imagem em um Label e exibe na janela
-#rotulo = tk.Label(janela, image=imagem_tkinter)
-#rotulo.pack(padx=20, pady=20)
+rotulo = tk.Label(janela, image=imagem_tkinter)
+#
+rotulo.pack(padx=20, pady=20)
 
 # Mantém a janela aberta
-#janela.mainloop()
+janela.mainloop()
