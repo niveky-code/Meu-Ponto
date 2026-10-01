@@ -249,6 +249,7 @@ class interface:
                 self.entryBusca = Entry(self.buscJanela, font=("Verdana", "12"), justify="center")
                 self.entryBusca.pack(pady=10)
                 self.entryBusca.bind("<KeyRelease>", self.aplicarMascara)
+                Button(self.buscJanela,text="aplicar busca",width=15,command=intraBusca,font=("Times New Roman", 12, "italic")).pack()
 
                 self.atualizarPlaceholder()
 
@@ -276,6 +277,9 @@ class interface:
                 self.entryBusca.delete(0, "end")
                 self.entryBusca.insert(0, texto)
 
+           
+        def intraBusca():
+            pass
         self._janelaBuscar = Toplevel(self.master)
         self._janelaBuscar.title("em produção")
         self._janelaBuscar.geometry("400x180")
