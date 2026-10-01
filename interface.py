@@ -191,17 +191,21 @@ class interface:
         if self._janelaMenu is not None and self._janelaMenu.winfo_exists():
             self._janelaMenu.lift()
             return
+        
 
         class menu:
             def __init__(self, master=None):
+                
                 self.nomeWig = Frame(master)
+                
                 self.nomeWig.pack()
+                
 
                 Label(self.nomeWig, text="alterar nome padrão",
                       font=("Verdana", "12", "italic", "bold")).pack(side=TOP)
 
                 Label(self.nomeWig, text="seu nome:",
-                      font=("Verdana", "12", "italic", "bold")).pack(side=LEFT)
+                      font=("Verdana", "10", "italic")).pack(side=LEFT)
                 self.nomeEN = Entry(self.nomeWig, width=20, font=("arial", "10"))
                 self.nomeEN.pack(side=RIGHT)
 
@@ -213,6 +217,7 @@ class interface:
 
         self._janelaMenu = Toplevel(self.master)
         self._janelaMenu.title("menu")
+        self._janelaMenu.geometry("200x150")
         menu(self._janelaMenu)
 
     def buscar(self):
